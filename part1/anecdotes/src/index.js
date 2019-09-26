@@ -1,13 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+const getRandomAnec = () => {
+  const max = anecdotes.length
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+const MostVote = ({points}) => {
+  const index = points.indexOf(Math.max(...points))
+  return (
+    <div>
+      <p>{anecdotes[index]}</p>
+      <p>has {points[index]} votes</p>
+    </div>
+  )
+}
+
 const App = (props) => {
-  const [selected, setSelected] = useState(0)
+  const [selected, setSelected] = useState(getRandomAnec())
+  const [points, setPoints] = useState(anecdotes.map(v => 0))
+
+  const vote = (selected) => {
+    const newPoints = [...points]
+    newPoints[selected] += 1
+    setPoints(newPoints)
+  }
 
   return (
     <div>
-      {props.anecdotes[selected]}
+      <h1>Anecdote of the day</h1>
+      <div>
+        {props.anecdotes[selected]}
+      </div>
+      <div>
+        <button onClick={() => vote(selected)}>vote</button>
+        <button onClick={() => setSelected(getRandomAnec())}>next anecdote</button>
+      </div>
+      <h1>Anecdote with most votes</h1>
+      <MostVote points={points} />
     </div>
   )
 }
