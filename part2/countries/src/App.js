@@ -24,7 +24,7 @@ const App = () => {
     setNewFilter(event.target.value) 
 
     const filteredCountries = countries.filter(v => {
-      return v.name.toLowerCase().includes(newFilter.toLowerCase()) 
+      return v.name.toLowerCase().includes(event.target.value.toLowerCase()) 
     })
 
 		const numCountries = filteredCountries.length	

@@ -9,6 +9,7 @@ const Country = ({country}) => {
 	const [weather, setWeather] = useState({})
 
   const fetchWeather = () => {
+    setWeather({})
     axios.get('http://api.weatherstack.com/current', {
         params: {
           access_key: weatherstack_key,
@@ -16,11 +17,12 @@ const Country = ({country}) => {
         } 
       })
       .then((res) => {
+        console.log(res.data)
 				setWeather(res.data)
       })
   }
 
-  useEffect(fetchWeather, [])
+  useEffect(fetchWeather, [country])
   return (
     <div>
       {country &&
