@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import SearchFilter from './components/SearchFilter'
 import PersonForm from './components/PersonForm'
 import Phonebook from './components/Phonebook'
+import personsService from './services/persons'
+import { ConfirmNotification, ErrorNotification } from './components/Notification'
 
 const App = () => {
   const [ persons, setPersons] = useState([]) 
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ newFilter, setNewFilter ] = useState('')
+  const [ confirmMessage, setConfirmMessage ] = useState(null)
+  const [ errorMessage, setErrorMessage ] = useState(null)
 
   const fetchPersons = () => {
-    axios.get('http://localhost:3001/persons') 
-      .then((res) => {
-        setPersons(res.data) 
-      })
+    personsService
+      .getAll()
+      .then(initialPersons => setPersons(initialPersons))
   }
   
   useEffect(fetchPersons, [])
@@ -22,9 +24,11 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <ConfirmNotification message={confirmMessage} />
+      <ErrorNotification message={errorMessage} /> 
 			<SearchFilter
 				setNewFilter={setNewFilter}
-				newFilter={newFilter}/>
+				newFilter={newFilter} />
 			<h2>Add new numbers</h2>
 			<PersonForm
         persons={persons}
@@ -32,9 +36,15 @@ const App = () => {
         newNumber={newNumber}
         setPersons={setPersons}
         setNewName={setNewName}
-        setNewNumber={setNewNumber} />
+        setNewNumber={setNewNumber}
+        setConfirmMessage={setConfirmMessage}
+        setErrorMessage={setErrorMessage} />
       <h2>Numbers</h2>
-      <Phonebook persons={persons} newFilter={newFilter}/>
+      <Phonebook
+        persons={persons}
+        newFilter={newFilter}
+        setPersons={setPersons}
+        setErrorMessage={setErrorMessage} />
     </div>
   )
 }
