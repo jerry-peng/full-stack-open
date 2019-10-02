@@ -2,7 +2,7 @@ const path = require('path')
 const express = require('express')
 const app = express()
 process.env.PWD = process.cwd()
-app.use(express.static(path.join(process.env.PWD, 'build')))
+app.use('/', express.static(path.join(process.env.PWD, 'build')))
 
 const morgan = require('morgan')
 const morganConfig = (tokens, req, res) => {
