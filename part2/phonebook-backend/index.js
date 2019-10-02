@@ -19,6 +19,9 @@ const morganConfig = (tokens, req, res) => {
 }
 app.use(morgan(morganConfig))
 
+const cors = require('cors')
+app.use(cors())
+
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
@@ -78,7 +81,7 @@ app.post('/api/persons', (req, res) => {
   }
 
   persons = persons.concat(person)
-  res.json(persons)
+  res.json(persons[persons.length - 1])
 })
 
 app.get('/api/persons', (req, res) => {
@@ -109,7 +112,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
