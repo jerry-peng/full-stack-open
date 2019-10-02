@@ -44,9 +44,6 @@ let persons = [
     "id": 4
   }
 ]
-app.get('/', (req, res) => {
-  res.send('<h1>Hello World</h1>')
-})
 
 app.get('/info', (req, res) => {
   const now = new Date()
