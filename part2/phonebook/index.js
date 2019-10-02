@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-app.use(express.static('build'))
+app.use(express.static(__dirname + 'build'))
 
 const morgan = require('morgan')
 const morganConfig = (tokens, req, res) => {
