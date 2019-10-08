@@ -26,7 +26,6 @@ app.use(cors())
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
-console.log(process.env.NODE_ENV)
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
@@ -48,12 +47,11 @@ app.get('/api/persons', (req, res) => {
   })
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
-  console.log(body.name, body.number)
-  if (!body.name || !body.number) {
-    return res.status(400).json({ error: 'content missing' })
+  if (body.name === undefined || body.number === undefined) {
+    return res.status(400).json({ error: 'input missing' })
   }
 
   const person = new Person({
@@ -61,9 +59,14 @@ app.post('/api/persons', (req, res) => {
     number: body.number,
   })
 
-  person.save().then(savedPerson => {
-    res.json(savedPerson.toJSON())
-  })
+  person.save()
+    .then(savedPerson => {
+      return savedPerson.toJSON()
+    })
+    .then(savedAndFormattedPerson => {
+      res.json(savedAndFormattedPerson) 
+    })
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
@@ -110,7 +113,11 @@ const errorHandler = (error, req, res, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError' && error.kind === 'ObjectId') {
-    return res.status(400).send({ error: 'malformatted id'}) 
+    return res.status(400).send({ error: 'malformatted id'})
+  }
+  else {
+    errors = Object.values(error.errors).map(v => v.message)
+    return res.status(404).send({ error: error.message})
   }
   next(error)
 }
