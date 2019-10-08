@@ -26,11 +26,12 @@ const PersonForm = ({persons, newName, newNumber, setPersons, setNewName,
 			number: newNumber
 		}
 
-		if (!formIsValid()) {
+      /*if (!formIsValid()) {
       return
-    }
+    }*/
 
-    const confirmText = `${newName} is already added to phonebook, replace the old number with a new one?`
+    const confirmText = `${newName} is already added to phonebook, ` + 
+        `replace the old number with a new one?`
 
     if (persons.map(v => v.name).includes(newName) && window.confirm(confirmText)) {
       personsService
@@ -53,6 +54,9 @@ const PersonForm = ({persons, newName, newNumber, setPersons, setNewName,
             .then(newPerson => {
               setPersons(persons.filter(v => v.name !== newName).concat(newPerson))
             })
+            .catch(error => {
+              console.log(error.response.data)     
+            })
         })
         .finally(() => {
           setNewName('')
@@ -63,11 +67,18 @@ const PersonForm = ({persons, newName, newNumber, setPersons, setNewName,
     else {
       personsService
         .create(personObject) 
-        .then(newPerson => setPersons(persons.concat(newPerson)))
-      setNewName('')
-      setNewNumber('')
-      const successMessage = `Added ${personObject.name}`
-      handleNotification(setConfirmMessage, successMessage)
+        .then(newPerson => {
+          setPersons(persons.concat(newPerson))
+          const successMessage = `Added ${personObject.name}`
+          handleNotification(setConfirmMessage, successMessage)
+        })
+        .catch(error => {
+          handleNotification(setErrorMessage, error.response.data.error)
+        })
+        .finally(() => {
+          setNewName('')
+          setNewNumber('')
+        })
     }
   }
 
