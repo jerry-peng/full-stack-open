@@ -13,8 +13,8 @@ const morganConfig = (tokens, req, res) => {
   config.push('-')
   config.push(tokens['response-time'](req, res))
   config.push('ms')
-  if (req.method == 'POST') {
-    config.push(JSON.stringify(req.body)) 
+  if (req.method === 'POST') {
+    config.push(JSON.stringify(req.body))
   }
   return config.join(' ')
 }
@@ -35,7 +35,7 @@ const Person = require('./models/person')
 app.get('/info', (req, res) => {
   Person.find({}).then(persons => {
     const now = new Date()
-    text = `<p>Phonebook has info for ${persons.length} people</p>`
+    let text = `<p>Phonebook has info for ${persons.length} people</p>`
     text += `<p>${now.toString()}</p>`
     res.send(text)
   })
@@ -64,7 +64,7 @@ app.post('/api/persons', (req, res, next) => {
       return savedPerson.toJSON()
     })
     .then(savedAndFormattedPerson => {
-      res.json(savedAndFormattedPerson) 
+      res.json(savedAndFormattedPerson)
     })
     .catch(error => next(error))
 })
@@ -75,7 +75,7 @@ app.get('/api/persons/:id', (req, res, next) => {
       if (person) {
         res.json(person.toJSON())
       } else {
-        res.status(404).end() 
+        res.status(404).end()
       }
     })
     .catch(error => next(error))
@@ -90,36 +90,34 @@ app.put('/api/persons/:id', (req, res, next) => {
 
   Person.findByIdAndUpdate(req.params.id, person, { new: true })
     .then(updatedPerson => {
-      res.json(updatedPerson.toJSON()) 
+      res.json(updatedPerson.toJSON())
     })
     .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(result => {
-      res.status(204).end() 
+    .then(() => {
+      res.status(204).end()
     })
     .catch(error => next(error))
 })
 
-const unknownEndpoint = (res, req) => {
+const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
 
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res) => {
   console.error(error.message)
 
   if (error.name === 'CastError' && error.kind === 'ObjectId') {
-    return res.status(400).send({ error: 'malformatted id'})
+    return res.status(400).send({ error: 'malformatted id' })
   }
   else {
-    errors = Object.values(error.errors).map(v => v.message)
-    return res.status(404).send({ error: error.message})
+    return res.status(404).send({ error: error.message })
   }
-  next(error)
 }
 
 app.use(errorHandler)
