@@ -8,7 +8,7 @@
     "watch": "nodemon index.js",
     "lint": "eslint .",
     "build:ui": "rm -fr build && cd ../../part2/phonebook-ui && npm run build --prod && mv build ../../part3/phonebook/",
-    "deploy": "cd ../../ && git subtree push --prefix part3/phonebook heroku master",
+    "deploy": "cd ../../ && git subtree push --prefix part3/phonebook phonebook master",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",
     "logs:prod": "heroku logs --tail"
   },
