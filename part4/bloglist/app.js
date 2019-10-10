@@ -11,7 +11,8 @@ console.log('connecting to', config.MONGODB_URI)
 
 mongoose
   .connect(config.MONGODB_URI, {
-    useNewUrlParse: true
+    useNewUrlParser: true,
+    useUnifiedTopology:true
   })
   .then(() => {
     console.log('connected to MongoDB')
