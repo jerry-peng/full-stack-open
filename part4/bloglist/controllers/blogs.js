@@ -9,7 +9,7 @@ blogsRouter.get('/', (request, response) => {
     })
 })
 
-blogsRouter.post('/', (request, response) => {
+blogsRouter.post('/', (request, response, next) => {
   const body = request.body
 
   const blog = new Blog({
@@ -19,7 +19,7 @@ blogsRouter.post('/', (request, response) => {
     likes: body.likes
   })
 
-  Blog
+  blog
     .save()
     .then(result => {
       response.status(201).json(result)
