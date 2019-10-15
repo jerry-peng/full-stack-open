@@ -1,20 +1,17 @@
-const mongoose = require('mongoose')
 const { MongoMemoryServer } = require('mongodb-memory-server')
+const mongoose = require('mongoose')
 
 // Extend the default timeout so MongoDB binaries can download
-
-// List your collection names here
-const COLLECTIONS = []
+jest.setTimeout(60000)
 
 class TestDB {
   constructor() {
     this.db = new MongoMemoryServer()
-    this.connection = null
   }
   
   async start() {
     const url = await this.db.getConnectionString() 
-    this.connection = await mongoose.connect(url, {
+    await mongoose.connect(url, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     })

@@ -1,27 +1,30 @@
 const TestDB = require('./test_db')
 const supertest = require('supertest')
-const app = require('../app')
 const Blog = require('../models/blog')
+const app = require('../app')
 
-const testServer = new TestDB()
 const api = supertest(app)
+const testDB = new TestDB()
 
-beforeAll(() => TestDB.start())
-afterAll(() => TestDB.stop())
+beforeAll(() => testDB.start())
+
 beforeEach(async () => {
   const blog = new Blog({
-    title: 'Title',
+    title: 'Author blog 1',
     author: 'Author Name',
-    url: 'MyUrl.com',
+    url: 'author.com',
     likes: 0
   })
   await blog.save()
 })
-afterEach(() => TestDB.cleanup())
+
+afterEach(() => Blog.remove());
+
+afterAll(() => testDB.stop())
 
 test('blogs are returned as json', async () => {
   await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+  .get('/api/blogs')
+  .expect(200)
+  .expect('Content-Type', /application\/json/)
 })
