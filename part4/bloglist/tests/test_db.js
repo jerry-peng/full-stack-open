@@ -4,6 +4,8 @@ const mongoose = require('mongoose')
 // Extend the default timeout so MongoDB binaries can download
 jest.setTimeout(60000)
 
+const COLLECTIONS = []
+
 class TestDB {
   constructor() {
     this.db = new MongoMemoryServer()
@@ -22,12 +24,12 @@ class TestDB {
     this.db.stop()
   }
 
-  reset() {
-    cleanup() 
+  async populate(objects) {
+    await Promise.all(objects.map(o => o.save()))
   }
 
-  cleanup() {
-    return Promise.all(COLLECTIONS.map(c => this.db.collection(c).remove({}))) 
+  async cleanup(...collections) {
+    await Promise.all(collections.map(c => c.deleteMany({})))
   }
 }
 
