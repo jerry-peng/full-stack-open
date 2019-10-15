@@ -7,19 +7,21 @@ const blogsRouter = require('./controllers/blogs')
 const middleware = require('./utils/middleware')
 const config = require('./utils/config')
 
-console.log('connecting to', config.MONGODB_URI)
 
-mongoose
-    .connect(config.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology:true
-    })
-    .then(() => {
-        console.log('connected to MongoDB')
-    })
-    .catch(error => {
-        console.log('error connecting to MongoDB:', error.message) 
-    })
+if (process.env.NODE_ENV !== 'test') {
+  console.log('connecting to', config.MONGODB_URI)
+  mongoose
+      .connect(config.MONGODB_URI, {
+          useNewUrlParser: true,
+          useUnifiedTopology:true
+      })
+      .then(() => {
+          console.log('connected to MongoDB')
+      })
+      .catch(error => {
+          console.log('error connecting to MongoDB:', error.message) 
+      })
+}
 
 const app = express()
 app.use(cors())
