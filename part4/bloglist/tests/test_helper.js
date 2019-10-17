@@ -11,16 +11,16 @@ const initialBlogs = [
     title: 'Second Blog', 
     author: 'Author 2',
     url: 'author2.com',
-    likes: 0
+    likes: '0'
   }
 ]
 
 const nonExistingId = async () => {
   const blog = new Blog({
-    title: 'New Third Blog', 
-    author: 'Author 3',
-    url: 'author3.com',
-    likes: 5
+    title: 'Non Existing Blog', 
+    author: 'Non Existent Author',
+    url: 'nonexistingauthor.com',
+    likes: '100'
   })
   await blog.save()
   await blog.remove()

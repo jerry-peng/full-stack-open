@@ -13,13 +13,22 @@ blogsRouter.post('/', async (request, response, next) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes
+    likes: body.likes || 0,
   })
 
   try {
     const savedBlog = await blog.save()
     await response.status(201).json(savedBlog)
-  } catch(exception) {
+  } catch (exception) {
+    next(exception) 
+  }
+})
+
+blogsRouter.delete('/:id', async (request, response, next) => {
+  try {
+    await Blog.findByIdAndRemove(request.params.id)
+    await response.status(204).end()
+  } catch (exception) {
     next(exception) 
   }
 })
