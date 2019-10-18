@@ -68,7 +68,7 @@ describe('when there are some blogs saved', () => {
       expect(addedBlog).toHaveProperty('likes', 10)
     })
 
-    test('succeeds with a blog with missing likes property, likes default to 0', async () => {
+    test('succeeds with a blog with missing `likes` property, `likes` default to 0', async () => {
       const newBlogMissingLikes = {
         title: 'New blog missing likes property',
         author: 'New Author',
@@ -85,7 +85,7 @@ describe('when there are some blogs saved', () => {
       expect(addedBlog).toHaveProperty('likes', 0)
     })
 
-    test('succeeds with a blog with empty likes property, likes default to 0', async () => {
+    test('succeeds with a blog with empty `likes` property, `likes` default to 0', async () => {
       const newBlogMissingLikes = {
         title: 'New blog missing likes property',
         author: 'New Author',
@@ -116,7 +116,6 @@ describe('when there are some blogs saved', () => {
 
       const blogs = await helper.blogsInDb()
       expect(blogs.length).toBe(helper.initialBlogs.length)
-      expect(response.body).toHaveProperty('error', 'Blog validation failed: title: Path `title` is required.')
     })
 
     test('fails with status code 400 if `url` is missing', async() => {
@@ -132,7 +131,6 @@ describe('when there are some blogs saved', () => {
 
       const blogs = await helper.blogsInDb()
       expect(blogs.length).toBe(helper.initialBlogs.length)
-      expect(response.body).toHaveProperty('error', 'Blog validation failed: url: Path `url` is required.')
     })
   })
 
@@ -145,12 +143,130 @@ describe('when there are some blogs saved', () => {
         .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
-
       expect(blogsAtEnd.length).toBe(helper.initialBlogs.length - 1)
 
       const titles = blogsAtEnd.map(blog => blog.content)
-
       expect(titles).not.toContain(blogToDelete.title)
     }) 
+
+    test('succeeds with status code 204 if `id` does not exist', async () => {
+      const nonExistingId = await helper.nonExistingId()
+      await api.delete(`/api/blogs/${nonExistingId}`)
+        .expect(204)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd.length).toBe(helper.initialBlogs.length)
+    })
+
+    test('fails with status code 400 if `id` is invalid', async () => {
+      let nonExistingId = await helper.nonExistingId()
+      const invalidId = nonExistingId.slice(1, nonExistingId.length)
+      await api.delete(`/api/blogs/${invalidId}`)
+        .expect(400)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd.length).toBe(helper.initialBlogs.length)
+    })
+  })
+
+  describe('updating a blog', () => {
+    test('succeeds with status code 200 with valid data', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdateId = blogsAtStart[0].id
+
+      const updatedValidBlog = {
+        title: 'Updated Blog',
+        author: 'Updated Author',
+        url: 'updatedauthor.com',
+        likes: 100
+      }
+
+      await api.put(`/api/blogs/${blogToUpdateId}`)
+        .send(updatedValidBlog)
+        .expect(200)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd.length).toBe(blogsAtStart.length)
+
+      const blogUpdated = blogsAtEnd.find(blog => blog.title === 'Updated Blog')
+      expect(blogUpdated).toHaveProperty('author', 'Updated Author')
+      expect(blogUpdated).toHaveProperty('url', 'updatedauthor.com')
+      expect(blogUpdated).toHaveProperty('likes', 100)
+    }) 
+
+    test('fails with status code 400 if `title` is missing', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdateId = blogsAtStart[0].id
+
+      const blogUpdatedMissingTitle = {
+        author: 'Updated Author',
+        url: 'updatedauthor.com',
+        likes: 100
+      }
+
+      await api.put(`/api/blogs/${blogToUpdateId}`)
+        .send(blogUpdatedMissingTitle)
+        .expect(400)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtStart).toEqual(blogsAtEnd)
+    })
+
+    test('fails with status code 400 if `url` is missing', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdateId = blogsAtStart[0].id
+
+      const blogUpdatedMissingUrl = {
+        title: 'Updated Blog',
+        author: 'Updated Author',
+        likes: 100
+      }
+
+      await api.put(`/api/blogs/${blogToUpdateId}`)
+        .send(blogUpdatedMissingUrl)
+        .expect(400)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtStart).toEqual(blogsAtEnd)
+    })
+
+    test('fails with status code 400 if `id` does not exist', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const nonExistingId = helper.nonExistingId()
+
+      const updatedValidBlog = {
+        title: 'Updated Blog',
+        author: 'Updated Author',
+        url: 'updatedauthor.com',
+        likes: 100
+      }
+
+      await api.put(`/api/blogs/${nonExistingId}`)
+        .send(updatedValidBlog)
+        .expect(400)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtStart).toEqual(blogsAtEnd)
+    })
+
+    test('fails with status code 400 if `id` is invalid', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      let nonExistingId = await helper.nonExistingId()
+      const invalidId = nonExistingId.slice(1, nonExistingId.length)
+
+      const updatedValidBlog = {
+        title: 'Updated Blog',
+        author: 'Updated Author',
+        url: 'updatedauthor.com',
+        likes: 100
+      }
+
+      await api.put(`/api/blogs/${invalidId}`)
+        .send(updatedValidBlog)
+        .expect(400)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtStart).toEqual(blogsAtEnd)
+    })
   })
 })
