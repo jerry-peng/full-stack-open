@@ -49,7 +49,7 @@ blogsRouter.put('/:id', async (request, response, next) => {
         new: true,
         runValidators: true
       })
-    response.json(blogUpdated.toJSON())
+    await response.json(blogUpdated)
   } catch (exception) {
     next(exception) 
   }
