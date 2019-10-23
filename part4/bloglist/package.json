@@ -16,14 +16,14 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "lodash": "^4.17.15",
-    "mongoose": "^5.7.3"
+    "mongoose": "^5.7.6"
   },
   "devDependencies": {
-    "dotenv": "^8.1.0",
+    "dotenv": "^8.2.0",
     "eslint": "^6.5.1",
     "jest": "^24.9.0",
-    "mongodb-memory-server": "^5.2.8",
-    "nodemon": "^1.19.3",
+    "mongodb-memory-server": "^5.2.11",
+    "nodemon": "^1.19.4",
     "supertest": "^4.0.2"
   }
 }
