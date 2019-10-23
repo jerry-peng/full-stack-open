@@ -111,7 +111,7 @@ describe('when there are some blogs saved', () => {
         likes: '10'
       }
 
-      const response = await api.post('/api/blogs')
+      await api.post('/api/blogs')
         .send(newBlogMissingTitle)
         .expect(400)
 
@@ -126,7 +126,7 @@ describe('when there are some blogs saved', () => {
         likes: '10'
       }
 
-      const response = await api.post('/api/blogs')
+      await api.post('/api/blogs')
         .send(newBlogMissingAuthor)
         .expect(400)
 
@@ -272,7 +272,7 @@ describe('when there are some blogs saved', () => {
   })
 })
 
-describe.only('when there is initially two users at db', () => {
+describe('when there is initially two users at db', () => {
   beforeEach(async () => {
     const users = helper.initialUsers.map(user => new User(user))
     await testDB.populate(users)
@@ -293,7 +293,6 @@ describe.only('when there is initially two users at db', () => {
       expect(response.body.length).toBe(usersAtStart.length)
     })
     test('returns with correct usernames', async () => {
-      const usersAtStart = await helper.usersInDb()
       const response = await api.get('/api/users')
       expect(response.body.map(user => user.username))
         .toEqual(expect.arrayContaining(helper.initialUsers.map(user => user.username)))
