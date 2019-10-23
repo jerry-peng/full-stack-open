@@ -2,6 +2,7 @@ const TestDB = require('./test_db')
 const supertest = require('supertest')
 const helper = require('../tests/test_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const app = require('../app')
 
 const api = supertest(app)
@@ -9,16 +10,16 @@ const testDB = new TestDB()
 
 beforeAll(() => testDB.start())
 
-beforeEach(async () => {
-  const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
-  await testDB.populate(blogObjects)
-})
-
-afterEach(() => testDB.cleanup(Blog))
-
 afterAll(() => testDB.stop())
 
 describe('when there are some blogs saved', () => {
+  beforeEach(async () => {
+    const blogs = helper.initialBlogs.map(blog => new Blog(blog))
+    await testDB.populate(blogs)
+  })
+
+  afterEach(() => testDB.cleanup(Blog))
+
   describe('fetching blogs', () => {
     test('are returned as json', async () => {
       await api
@@ -267,6 +268,35 @@ describe('when there are some blogs saved', () => {
 
       const blogsAtEnd = await helper.blogsInDb()
       expect(blogsAtStart).toEqual(blogsAtEnd)
+    })
+  })
+})
+
+describe.only('when there is initially two users at db', () => {
+  beforeEach(async () => {
+    const users = helper.initialUsers.map(user => new User(user))
+    await testDB.populate(users)
+  })
+
+  afterEach(() => testDB.cleanup(User))
+
+  describe('fetching users', () => {
+    test('returns json with status 200', async () => {
+      await api
+        .get('/api/users')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+    })
+    test('returns with correct number of users', async () => {
+      const usersAtStart = await helper.usersInDb()
+      const response = await api.get('/api/users')
+      expect(response.body.length).toBe(usersAtStart.length)
+    })
+    test('returns with correct usernames', async () => {
+      const usersAtStart = await helper.usersInDb()
+      const response = await api.get('/api/users')
+      expect(response.body.map(user => user.username))
+        .toEqual(expect.arrayContaining(helper.initialUsers.map(user => user.username)))
     })
   })
 })
