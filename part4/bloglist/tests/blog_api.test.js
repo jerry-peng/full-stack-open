@@ -297,5 +297,9 @@ describe('when there is initially two users at db', () => {
       expect(response.body.map(user => user.username))
         .toEqual(expect.arrayContaining(helper.initialUsers.map(user => user.username)))
     })
+    test('returns without password', async () => {
+      const response = await api.get('/api/users')
+      Promise.all(response.body.map(user => expect(user.password).toBeUndefined()))
+    })
   })
 })
