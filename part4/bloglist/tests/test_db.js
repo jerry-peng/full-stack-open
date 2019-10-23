@@ -1,11 +1,6 @@
 const { MongoMemoryServer } = require('mongodb-memory-server')
 const mongoose = require('mongoose')
 
-// Extend the default timeout so MongoDB binaries can download
-jest.setTimeout(60000)
-
-const COLLECTIONS = []
-
 class TestDB {
   constructor() {
     this.db = new MongoMemoryServer()
