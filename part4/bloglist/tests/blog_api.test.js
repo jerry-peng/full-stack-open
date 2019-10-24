@@ -272,7 +272,7 @@ describe('when there are some blogs saved', () => {
   })
 })
 
-describe.only('when there is initially two users at db', () => {
+describe('when there is initially two users at db', () => {
   beforeEach(async () => {
     const users = helper.initialUsers.map(user => new User(user))
     await testDB.populate(users)
