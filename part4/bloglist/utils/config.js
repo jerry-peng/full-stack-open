@@ -1,4 +1,4 @@
-const envPath = __dirname + "/../.env"
+const envPath = __dirname + '/../.env'
 require('dotenv').config({ path: envPath })
 
 let PORT = process.env.PORT
