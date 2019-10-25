@@ -7,6 +7,7 @@
     "start": "NODE_ENV=production node index.js",
     "watch": "NODE_ENV=development nodemon index.js",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "NODE_ENV=test jest --verbose --runInBand"
   },
   "author": "Jerry Peng",
