@@ -12,7 +12,7 @@ beforeAll(() => testDB.start())
 
 afterAll(() => testDB.stop())
 
-describe('when there are some blogs saved', () => {
+describe('when there are some blogs and users saved', () => {
   beforeEach(async () => {
     const blogs = helper.initialBlogs.map(blog => new Blog(blog))
     await testDB.populate(blogs)
@@ -44,31 +44,6 @@ describe('when there are some blogs saved', () => {
     test('are returned with id property', async () => {
       const response = await api.get('/api/blogs')
       await Promise.all(response.body.map(blog => expect(blog.id).toBeDefined()))
-    })
-
-    test('added blog references user, user references added blog', async () => {
-      const newBlog = {
-        title: 'New Blog',
-        author: 'New Author',
-        url: 'newauthor.com',
-        likes: '10'
-      }
-
-      await api.post('/api/blogs')
-        .send(newBlog)
-        .expect(201)
-        .expect('Content-Type', /application\/json/)
-
-      const response = await api.get('/api/blogs')
-      const blogs = response.body
-      const addedBlog = blogs.find(b => b.title === 'New Blog')
-
-      expect(addedBlog.user).toBeDefined()
-
-      const user = addedBlog.user
-      expect(user.username).toBeDefined()
-      expect(user.name).toBeDefined()
-      expect(user.blogs).toBeDefined()
     })
   })
 
