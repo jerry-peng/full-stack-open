@@ -17,7 +17,7 @@ describe('when there is initially two users at db', () => {
     await testDB.populate(users)
   })
 
-  afterEach(() => testDB.cleanup(User))
+  afterEach(async () => testDB.cleanup(User))
 
   describe('fetching users', () => {
     test('returns json with status 200', async () => {

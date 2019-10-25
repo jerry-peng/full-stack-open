@@ -20,7 +20,7 @@ describe('when there are some blogs and users saved', () => {
     await testDB.populate(users)
   })
 
-  afterEach(() => testDB.cleanup(Blog, User))
+  afterEach(async () => testDB.cleanup(Blog, User))
 
   describe('fetching blogs', () => {
     test('are returned as json', async () => {
