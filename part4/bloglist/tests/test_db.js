@@ -11,7 +11,8 @@ class TestDB {
     await mongoose.connect(url, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useFindAndModify: false
+      useFindAndModify: false,
+      useCreateIndex: true
     })
   }
 
