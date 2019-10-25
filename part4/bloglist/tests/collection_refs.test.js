@@ -38,8 +38,11 @@ describe('when there are some users saved', () => {
 
     expect(addedBlog.user).toBeDefined()
 
-    const user = helper.initialUsers[0]
+    const users = await helper.usersInDb()
+    const user = users.find(u => u.blogs.map(b => b.toString()).includes(addedBlog.id))
+
     const refUser = addedBlog.user
+
     expect(refUser.username).toBe(user.username)
     expect(refUser.name).toBe(user.name)
     expect(refUser.blogs).toBeUndefined()
@@ -68,6 +71,7 @@ describe('when there are some users saved', () => {
     expect(user.blogs.length).toBe(1)
 
     const refBlog = user.blogs[0]
+
     expect(refBlog.title).toBe('New Blog')
     expect(refBlog.author).toBe('New Author')
     expect(refBlog.url).toBe('newauthor.com')
