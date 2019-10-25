@@ -88,7 +88,7 @@ describe('when there is initially two users at db', () => {
         password: 'secret password'
       }
 
-      const response = await api.post('/api/users')
+      await api.post('/api/users')
         .send(newUser)
         .expect(400)
 
@@ -104,7 +104,7 @@ describe('when there is initially two users at db', () => {
         password: 'secret password'
       }
 
-      const response = await api.post('/api/users')
+      await api.post('/api/users')
         .send(newUser)
         .expect(400)
 
@@ -163,7 +163,7 @@ describe('when there is initially two users at db', () => {
         password: 'new password'
       }
 
-      const response = await api.post('/api/users')
+      await api.post('/api/users')
         .send(newUser)
         .expect(400)
 
