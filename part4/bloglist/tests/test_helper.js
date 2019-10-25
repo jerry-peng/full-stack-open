@@ -38,12 +38,12 @@ const initialUsers = [
   {
     username: 'root',
     name: 'Super User',
-    passwordHash: 'root_password'
+    password: 'root_password'
   },
   {
     username: 'johndoe',
     name: 'John Doe',
-    passwordHash: 'user_password'
+    password: 'password'
   }
 ]
 
