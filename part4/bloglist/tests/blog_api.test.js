@@ -14,10 +14,11 @@ afterAll(() => testDB.stop())
 
 describe('when there are some blogs and users saved', () => {
   beforeEach(async () => {
+    const users = helper.initialUsers
+    await Promise.all(users.map(user => api.post('/api/users').send(user)))
+
     const blogs = helper.initialBlogs.map(blog => new Blog(blog))
     await testDB.populate(blogs)
-    const users = helper.initialUsers.map(user => new User(user))
-    await testDB.populate(users)
   })
 
   afterEach(async () => testDB.cleanup(Blog, User))
@@ -49,6 +50,13 @@ describe('when there are some blogs and users saved', () => {
 
   describe('adding a new blog', () => {
     test('succeeds with valid data', async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
       const newBlog = {
         title: 'New Blog',
         author: 'New Author',
@@ -57,6 +65,7 @@ describe('when there are some blogs and users saved', () => {
       }
 
       await api.post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -76,6 +85,13 @@ describe('when there are some blogs and users saved', () => {
     })
 
     test('succeeds with a blog with missing `likes` property, `likes` default to 0', async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
       const newBlogMissingLikes = {
         title: 'New blog missing likes property',
         author: 'New Author',
@@ -83,6 +99,7 @@ describe('when there are some blogs and users saved', () => {
       }
 
       await api.post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlogMissingLikes)
         .expect(201)
 
@@ -93,6 +110,13 @@ describe('when there are some blogs and users saved', () => {
     })
 
     test('succeeds with a blog with empty `likes` property, `likes` default to 0', async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
       const newBlogMissingLikes = {
         title: 'New blog missing likes property',
         author: 'New Author',
@@ -101,6 +125,7 @@ describe('when there are some blogs and users saved', () => {
       }
 
       await api.post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlogMissingLikes)
         .expect(201)
 
@@ -111,6 +136,13 @@ describe('when there are some blogs and users saved', () => {
     })
 
     test('fails with status code 400 if `title` is missing', async() => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
       const newBlogMissingTitle = {
         author: 'New Author',
         url: 'newauthor.com',
@@ -118,6 +150,7 @@ describe('when there are some blogs and users saved', () => {
       }
 
       await api.post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlogMissingTitle)
         .expect(400)
 
@@ -126,6 +159,13 @@ describe('when there are some blogs and users saved', () => {
     })
 
     test('fails with status code 400 if `url` is missing', async() => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
       const newBlogMissingAuthor = {
         title: 'New blog',
         author: 'New Author',
@@ -133,8 +173,67 @@ describe('when there are some blogs and users saved', () => {
       }
 
       await api.post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlogMissingAuthor)
         .expect(400)
+
+      const blogs = await helper.blogsInDb()
+      expect(blogs.length).toBe(helper.initialBlogs.length)
+    })
+
+    test('fails with failed login', async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'wrong_password'
+      })
+
+      const token = loginResponse.body.token
+
+      const newBlog = {
+        title: 'New Blog',
+        author: 'New Author',
+        url: 'newauthor.com',
+        likes: '10'
+      }
+
+      const response = await api.post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newBlog)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
+
+      const error = { error: 'invalid token' }
+
+      expect(response.body).toEqual(error)
+
+      const blogs = await helper.blogsInDb()
+      expect(blogs.length).toBe(helper.initialBlogs.length)
+    })
+
+    test('fails with malformed token', async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
+      const newBlog = {
+        title: 'New Blog',
+        author: 'New Author',
+        url: 'newauthor.com',
+        likes: '10'
+      }
+
+      const response = await api.post('/api/blogs')
+        .set('Authorization', `Bearer a${token}`)
+        .send(newBlog)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
+
+      const error = { error: 'invalid token' }
+
+      expect(response.body).toEqual(error)
 
       const blogs = await helper.blogsInDb()
       expect(blogs.length).toBe(helper.initialBlogs.length)
