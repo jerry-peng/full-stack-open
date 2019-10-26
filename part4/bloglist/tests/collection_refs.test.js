@@ -14,13 +14,20 @@ afterAll(() => testDB.stop())
 
 describe('when there are some users saved', () => {
   beforeEach(async () => {
-    const users = helper.initialUsers.map(user => new User(user))
-    await testDB.populate(users)
+    const users = helper.initialUsers
+    await Promise.all(users.map(user => api.post('/api/users').send(user)))
   })
 
   afterEach(() => testDB.cleanup(Blog, User))
 
   test('added blog references user', async () => {
+    const loginResponse = await api.post('/api/login').send({
+      username: 'johndoe',
+      password: 'password'
+    })
+
+    const token = loginResponse.body.token
+
     const newBlog = {
       title: 'New Blog',
       author: 'New Author',
@@ -29,6 +36,7 @@ describe('when there are some users saved', () => {
     }
 
     await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -49,6 +57,13 @@ describe('when there are some users saved', () => {
   })
 
   test('user references added blog', async () => {
+    const loginResponse = await api.post('/api/login').send({
+      username: 'johndoe',
+      password: 'password'
+    })
+
+    const token = loginResponse.body.token
+
     const newBlog = {
       title: 'New Blog',
       author: 'New Author',
@@ -57,6 +72,7 @@ describe('when there are some users saved', () => {
     }
 
     await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
