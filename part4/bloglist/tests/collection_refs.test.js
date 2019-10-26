@@ -20,7 +20,7 @@ describe('when there are some users saved', () => {
 
   afterEach(() => testDB.cleanup(Blog, User))
 
-  test.only('added blog references user', async () => {
+  test('added blog references user', async () => {
     const loginResponse = await api.post('/api/login').send({
       username: 'johndoe',
       password: 'password'
