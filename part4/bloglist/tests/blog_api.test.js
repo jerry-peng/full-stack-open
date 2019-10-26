@@ -241,37 +241,85 @@ describe('when there are some blogs and users saved', () => {
   })
 
   describe('deleting a blog', () => {
+    beforeEach(async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
+      const newBlog = {
+        title: 'New Blog',
+        author: 'New Author',
+        url: 'newauthor.com',
+        likes: '10'
+      }
+
+      const response = await api.post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newBlog)
+    })
+
     test('succeeds with status code 204 if `id` is valid', async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
       const blogsAtStart = await helper.blogsInDb()
-      const blogToDelete = blogsAtStart[0]
+      const blogToDelete = blogsAtStart.find(b => b.title === 'New Blog')
 
       await api.delete(`/api/blogs/${blogToDelete.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd.length).toBe(helper.initialBlogs.length - 1)
+      expect(blogsAtEnd.length).toBe(blogsAtStart.length - 1)
 
       const titles = blogsAtEnd.map(blog => blog.content)
       expect(titles).not.toContain(blogToDelete.title)
     }) 
 
     test('succeeds with status code 204 if `id` does not exist', async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
+      const blogsAtStart = await helper.blogsInDb()
+
       const nonExistingId = await helper.nonExistingId()
       await api.delete(`/api/blogs/${nonExistingId}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd.length).toBe(helper.initialBlogs.length)
+      expect(blogsAtEnd.length).toBe(blogsAtStart.length)
     })
 
     test('fails with status code 400 if `id` is invalid', async () => {
+      const loginResponse = await api.post('/api/login').send({
+        username: 'johndoe',
+        password: 'password'
+      })
+
+      const token = loginResponse.body.token
+
+      const blogsAtStart = await helper.blogsInDb()
+
       let nonExistingId = await helper.nonExistingId()
       const invalidId = nonExistingId.slice(1, nonExistingId.length)
       await api.delete(`/api/blogs/${invalidId}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd.length).toBe(helper.initialBlogs.length)
+      expect(blogsAtEnd.length).toBe(blogsAtStart.length)
     })
   })
 
