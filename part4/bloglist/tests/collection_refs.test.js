@@ -20,7 +20,7 @@ describe('when there are some users saved', () => {
 
   afterEach(() => testDB.cleanup(Blog, User))
 
-  test('added blog references user', async () => {
+  test.only('added blog references user', async () => {
     const loginResponse = await api.post('/api/login').send({
       username: 'johndoe',
       password: 'password'
@@ -35,63 +35,18 @@ describe('when there are some users saved', () => {
       likes: '10'
     }
 
-    await api.post('/api/blogs')
+    const response = await api.post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const response = await api.get('/api/blogs')
-    const addedBlog = response.body.find(b => b.title === 'New Blog')
+    const blog = await Blog.findById(response.body.id)
 
-    expect(addedBlog.user).toBeDefined()
+    expect(blog.user).toBeDefined()
 
-    const users = await helper.usersInDb()
-    const user = users.find(u => u.blogs.map(b => b.toString()).includes(addedBlog.id))
+    const user = await User.findById(blog.user)
 
-    const refUser = addedBlog.user
-
-    expect(refUser.username).toBe(user.username)
-    expect(refUser.name).toBe(user.name)
-    expect(refUser.blogs).toBeUndefined()
-  })
-
-  test('user references added blog', async () => {
-    const loginResponse = await api.post('/api/login').send({
-      username: 'johndoe',
-      password: 'password'
-    })
-
-    const token = loginResponse.body.token
-
-    const newBlog = {
-      title: 'New Blog',
-      author: 'New Author',
-      url: 'newauthor.com',
-      likes: '10'
-    }
-
-    await api.post('/api/blogs')
-      .set('Authorization', `Bearer ${token}`)
-      .send(newBlog)
-      .expect(201)
-      .expect('Content-Type', /application\/json/)
-
-    const blogs = await helper.blogsInDb()
-    const addedBlog = blogs.find(b => b.title === 'New Blog')
-
-    const response = await api.get('/api/users')
-    const users = response.body
-    const user = users.find(u => u.id === addedBlog.user.toString())
-
-    expect(user.blogs.length).toBe(1)
-
-    const refBlog = user.blogs[0]
-
-    expect(refBlog.title).toBe('New Blog')
-    expect(refBlog.author).toBe('New Author')
-    expect(refBlog.url).toBe('newauthor.com')
-    expect(refBlog.likes).toBe(10)
-    expect(refBlog.blogs).toBeUndefined()
+    expect(user.blogs.map(blog => blog.toString())).toContain(blog._id.toString())
   })
 })
