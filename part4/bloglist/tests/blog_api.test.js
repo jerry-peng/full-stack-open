@@ -256,7 +256,7 @@ describe('when there are some blogs and users saved', () => {
         likes: '10'
       }
 
-      const response = await api.post('/api/blogs')
+      await api.post('/api/blogs')
         .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
     })
