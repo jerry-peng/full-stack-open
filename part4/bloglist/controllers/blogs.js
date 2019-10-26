@@ -31,8 +31,10 @@ blogsRouter.post('/', async (request, response, next) => {
     })
 
     const savedBlog = await blog.save()
+
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
+
     response.status(201).json(savedBlog.toJSON())
   } catch (exception) {
     next(exception) 
@@ -41,7 +43,24 @@ blogsRouter.post('/', async (request, response, next) => {
 
 blogsRouter.delete('/:id', async (request, response, next) => {
   try {
+    const decodedToken = jwt.verify(request.token, config.SECRET)
+
+    if (!request.token || !decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' }) 
+    }
+
+    const blog = await Blog.findById(request.params.id)
+
+    if (decodedToken.id !== blog.user.toString()) {
+      response.status(401).json({ error: 'Unauthorized to delete' }).end()
+    }
+
+    const user = await User.findById(decodedToken.id)
+    user.blogs = user.blogs.filter(_id => _id.toString() !== request.params.id)
+    await user.save()
+
     await Blog.findByIdAndRemove(request.params.id)
+
     response.status(204).end()
   } catch (exception) {
     next(exception) 
